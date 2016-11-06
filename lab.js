@@ -68,7 +68,12 @@ var withDefaultOptions = function(options) {
 
 };
 
-var rootDir = process.env.ROOT_DIR;
+var rootDir = null;
+if (process.env.ROOT_DIR) {
+  rootDir = process.env.ROOT_DIR;
+} else {
+  rootDir = path.dirname(require.main.filename);
+}
 
 /* API */
 
@@ -292,13 +297,9 @@ app.get("/stop/:id", (req, res, next) => {
     }
     rp(withDefaultOptions({uri: uri, method: "POST", json: options , gzip: true}))
     .then((body) => {
-      resolve(body);
       res.status(200).send({msg: "Done!"});   
     })
-    .catch(() => {
-      //reject({error: "Failed to stop machine"});
-      //next(err);
-      console.log("No? "  + uri);
+    .catch((err) => {
       res.status(500).send({msg: "Failed to stop machine"});   
     });
     
@@ -428,6 +429,8 @@ app.post("/api/v1/projects/:id/experiment", jsonParser, (req, res, next) => {
     next(err);
   });
 });
+
+// TODO refactor experiments to generate jobs and then seperately triiger them on machines
 
 // Submit job with retry
 var submitJobRetry = function(projId, options, retryT) {
