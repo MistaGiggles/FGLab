@@ -1,0 +1,42 @@
+extends ./layout.jade
+
+block title
+  title FGLab: Project #{project.name}
+
+block content
+    - var text = JSON.stringify(project, null, 2)
+      textarea#schema(rows=15).form-control= text
+      form#update-project
+        button.btn.btn-primary(type="submit") Save
+
+
+block scripts
+  script(src="/bower_components/lodash/dist/lodash.min.js")
+  script.
+    $(function() {
+      var onlineMachines = [];
+
+      // Make home button active
+      $("#nav .nav-item:first-child").addClass("active");
+
+      // Create new project
+      $("#update-project").on("submit", function() {
+        // Extract file
+        
+        // Send
+        $.ajax({
+          url: "/api/v1/projects/schema_json",
+          type: "POST",
+          data: $("#schema").val(),
+          processData: false,
+          contentType: "application/json"
+        })
+        .then(function() {
+          location.reload(); // Refresh page
+        })
+        .catch(function(err) {
+          alert(err.responseText); // Display server error
+        });
+        return false; // Stop event and propagation
+      });
+    });

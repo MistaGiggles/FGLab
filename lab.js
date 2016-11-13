@@ -233,6 +233,18 @@ app.post("/api/v1/projects/schema", upload.single("schema"), (req, res, next) =>
   });
 });
 
+app.post("/api/v1/projects/schema_json", jsonParser, (req, res, next) => {
+  var proj = req.body;
+  db.projects.updateByIdAsync(proj._id, {name: proj.name, schema: proj.schema, command: proj.command, datainfo: proj.datainfo})
+  .then((result) => {
+    res.send(result);
+  })
+  .catch((err) => {
+    console.log(err);
+    next(err);
+  });
+});
+
 // transfer file to machines
 app.post("/api/v1/projects/:id/extrafile", upload.single("extrafile"), (req, res) => {
   console.log("Uploading...");
@@ -430,7 +442,7 @@ app.post("/api/v1/projects/:id/experiment", jsonParser, (req, res, next) => {
   });
 });
 
-// TODO refactor experiments to generate jobs and then seperately triiger them on machines
+// TODO refactor experiments to generate jobs and then seperately trigger them on machines
 
 // Submit job with retry
 var submitJobRetry = function(projId, options, retryT) {
@@ -690,6 +702,17 @@ app.get("/projects/:id", (req, res, next) => {
   db.projects.findByIdAsync(req.params.id)
   .then((result) => {
     res.render("project", {project: result});
+  })
+  .catch((err) => {
+    next(err);
+  });
+});
+
+// Project page (new experiment)
+app.get("/projects/:id/edit", (req, res, next) => {
+  db.projects.findByIdAsync(req.params.id)
+  .then((result) => {
+    res.render("editproject", {project: result});
   })
   .catch((err) => {
     next(err);

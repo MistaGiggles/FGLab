@@ -52,7 +52,9 @@ block content
             tr
               td
                 button.btn.btn-outline-danger.btn-sm.delete(data-type="projects", data-id="#{project._id}", type="button") #[span.octicon.octicon-trashcan]
-              td #{project._id}
+              td
+                a(href="/projects/" + project._id + "/edit")
+                  #{project._id}
               td #{project.name}
               td 
                 a(href="/projects/" + project._id)
